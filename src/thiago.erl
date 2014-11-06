@@ -93,10 +93,9 @@ start_link() ->
 %% @end
 %%--------------------------------------------------------------------
 init([]) ->
+    io:format("Initializing thiago ~n"),
     process_flag(trap_exit, true),
-    {ok, Ref} = gnuart:subscribe(),
-    {ok, #state{references = [Ref]}}.
-
+    {ok, initialized}.
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
@@ -111,21 +110,18 @@ init([]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_call(open, _From, State)         ->
-    ok = gnuart:open(),
+handle_call({create, Args}, _From, State)->
+    ok = thiago_code:create(Args),
     {reply, ok, State};
-handle_call(close, _From, State)         ->
-    ok = gnuart:close(),
+handle_call({update, Args}, _From, State)         ->
+    ok = thiago_code:update(Args),
     {reply, ok, State};
-handle_call({send, Cmd}, _From, State)  ->
-    {ok, flush} = gnuart:flush(Cmd),
+handle_call({get, Args}, _From, State)  ->
+    ok = thiago_code:get(Args),
     {reply, ok, State};
-handle_call(subscribe, {Pid, _}, #state{subscription=S, references=Refs})  ->
-    Reference = erlang:make_ref(),
-    {reply, {ok, Reference}, #state{subscription=[ {Reference, Pid} | S], references=Refs}};
-handle_call(unsubscribe, {Pid, _}, #state{subscription=S, references=Refs})  ->
-    {reply, ok, #state{subscription=[ {Ref, SPid} || {Ref, SPid} <- S, Pid =/= SPid], references=Refs}}.
-
+handle_call({delete, Args}, _From, State)  ->
+    ok = thiago_code:delete(Args),
+    {reply, ok, State}.
 %%--------------------------------------------------------------------
 %% @private
 %% @doc

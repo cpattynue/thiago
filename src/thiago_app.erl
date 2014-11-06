@@ -20,5 +20,4 @@ start(_StartType, _StartArgs) ->
     thiago_sup:start_link().
 
 stop(_State) ->
-    [] = os:cmd(?TURN_OFF_NFC_LED),
     ok.

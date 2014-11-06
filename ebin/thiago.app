@@ -9,5 +9,5 @@
 		  gnuart
                  ]},
   {mod, { thiago_app, []}},
-  {modules,[thiago, thiago_app, thiago_sup]}
+  {modules,[thiago, thiago_app, thiago_sup, thiago_code]}
  ]}.
