@@ -5,9 +5,9 @@
   {registered, []},
   {applications, [
                   kernel,
-                  stdlib,
-		  thiago
+                  stdlib
                  ]},
   {mod, { thiago_app, []}},
+  {env, [{mytag, "/Users/PattyNunez/Desktop" }]},
   {modules,[thiago, thiago_app, thiago_sup, thiago_code]}
  ]}.
