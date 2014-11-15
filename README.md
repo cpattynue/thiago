@@ -36,7 +36,7 @@ Create a file, you need a name of the file and a list of the data to save
 Get data, you need name of the file and the name of the bucket
 
 	3> thiago:get({"name", users}).
-	{ok, [{users,0001}]}
+	{ok,[{users,"0001"}]}
 
 Update file, you need name of the file and the data to append 
 
