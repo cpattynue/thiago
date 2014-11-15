@@ -1,8 +1,9 @@
-thiago - write erlang terms to file 
+thiago - :smiley_cat: - write erlang terms to file 
 ======
 
-Thiago is the name of my cat, but also is an application written in erlang
-to store erlang terms into files, using disk erlang term storage
+Thiago is the name of my CAT :smiley_cat: :smiley_cat: :smiley_cat: :smiley_cat:, 
+but also is an application written in erlang to store erlang terms into files, 
+using disk erlang term storage
 
 How to start?
 ======
