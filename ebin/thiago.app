@@ -8,6 +8,6 @@
                   stdlib
                  ]},
   {mod, { thiago_app, []}},
-  {env, [{path, "/Users/PattyNunez/Desktop" }]},
+  {env, [{path, "/" }]},
   {modules,[thiago, thiago_app, thiago_sup, thiago_code]}
  ]}.

@@ -1,7 +1,10 @@
 
 SRC=$(PWD)/src/
+
 EBIN=$(PWD)/ebin/
+
 INCLUDE=$(PWD)/include/
+
 all: compile 
 
 compile: 

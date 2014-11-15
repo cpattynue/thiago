@@ -1,10 +1,3 @@
-%%
-%% Copyright (C) 2014
-%% Authors: Patricia Nuñez cpattynue@gmail.com<>
-%% All rights reserved.
-%%
-%%
-%%
 -module(thiago_app).
 
 -behaviour(application).

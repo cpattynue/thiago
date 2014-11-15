@@ -1,14 +1,3 @@
-%%
-%% Copyright (C) 2014 
-%% Authors: Patricia Nuñez <cpattynue@gmail.com>
-%%          Jorge Garrido <zgbjgg@gmail.com>
-%% All rights reserved.
-%%
-%% This Source Code Form is subject to the terms of the Mozilla Public
-%% License, v. 2.0. If a copy of the MPL was not distributed with this
-%% file, You can obtain one at http://mozilla.org/MPL/2.0/.
-%%
-%%
 -module(thiago).
 
 -behaviour(gen_server).
@@ -22,7 +11,7 @@
 
 -define(SERVER, ?MODULE). 
 
--record(state, {subscription=[], references=[]}).
+-record(state, {path_to_save_files}).
 
 
 %%%===================================================================
@@ -36,8 +25,7 @@
 %%--------------------------------------------------------------------
 -spec create(Args :: tuple()) -> ok.
 create(Args) ->
-    gen_server:call(?MODULE,{create, Args}).
-
+    gen_server:call(?MODULE,{create_or_update, Args}).
 
 %%--------------------------------------------------------------------
 %% @doc Update binary file 
@@ -46,7 +34,7 @@ create(Args) ->
 %%--------------------------------------------------------------------
 -spec update(Args :: tuple()) -> ok.
 update(Args) ->
-    gen_server:call(?MODULE, {update, Args}).
+    gen_server:call(?MODULE, {create_or_update, Args}).
 
 %%--------------------------------------------------------------------
 %% @doc Get binary file 
@@ -65,7 +53,6 @@ get(Args) ->
 -spec delete(Args :: tuple()) -> ok.
 delete(Args) ->
     gen_server:call(?MODULE, {delete, Args}).
-
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -94,7 +81,12 @@ start_link() ->
 %%--------------------------------------------------------------------
 init([]) ->
     process_flag(trap_exit, true),
-    {ok, initialized}.
+
+    % Get the path from our env 
+    {ok, Path} = application:get_env(thiago, path),   
+ 
+    {ok, #state{path_to_save_files=Path}}.
+
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
@@ -109,18 +101,28 @@ init([]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_call({create, Args}, _From, State)->
-    ok = thiago_code:create(Args),
+handle_call({create_or_update, {Name, Terms}}, _From, State=#state{path_to_save_files=Path}) ->  
+    DBPath = Path ++ "/" ++ Name ++ ".db",
+    {ok, Name} = dets:open_file(Name, [{file, DBPath},{type, duplicate_bag}]),
+    ok = dets:insert( Name, Terms ),
+    ok = dets:close( Name ),
     {reply, ok, State};
-handle_call({update, Args}, _From, State)         ->
-    ok = thiago_code:update(Args),
-    {reply, ok, State};
-handle_call({get, Args}, _From, State)  ->
-    ok = thiago_code:get(Args),
-    {reply, ok, State};
-handle_call({delete, Args}, _From, State)  ->
-    ok = thiago_code:delete(Args),
+handle_call({get, {Name, Key}}, _From, State=#state{path_to_save_files=Path})  	     ->
+    DBPath = Path ++ "/" ++ Name ++ ".db",
+    {ok, Name}  = dets:open_file(Name,[{file, DBPath},{type, duplicate_bag}]),
+    Found = dets:lookup(Name, Key),
+    ok = dets:close( Name ),
+    {reply, {ok, Found}, State};
+handle_call({delete, {Name, Key}}, _From, State=#state{path_to_save_files=Path})  ->
+    DBPath = Path ++ "/" ++ Name ++ ".db",
+    {ok, Name}  = dets:open_file(Name,[{file, DBPath},{type, duplicate_bag}]),
+    
+    case Key of
+        all ->  dets:delete_all_objects(Name);
+        _   ->  dets:delete_object(Name, Key)
+    end,
     {reply, ok, State}.
+
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
@@ -144,12 +146,8 @@ handle_cast(_Msg, State) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_info({got, Ref, Got}, #state{subscription=S, references=[Ref]})  ->
-    io:format("arygon nfc got: ~p \n", [Got]),
-    GotValue = arygon_nfc_cmds:split(Got),
-    io:format("arygon nfc got value: ~p \n", [GotValue]),
-    [ Pid ! {nfc, Ref, GotValue} || {_, Pid} <- S ],  
-    {noreply, #state{subscription=S, references=[Ref]}}.
+handle_info(_Info, State)  ->
+    {noreply, State}.
 
 %%--------------------------------------------------------------------
 %% @private
