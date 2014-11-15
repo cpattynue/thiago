@@ -1,15 +1,24 @@
-thiago - the THIAGO erlang application
+thiago - write erlang terms to file 
 ======
 
-Compile the application 
+Thiago is the name of my cat, but also is an application written in erlang
+to store erlang terms into files, using disk erlang term storage
+
+How to start?
+======
+
+Clone from github:
+
+	$ git clone https://github.com/cpattynue/thiago.git
+
+Compile the application: 
+	
 	$ make all
 
-Before start application, you must configure the path to save the files in  ebin/thiago.app at line 11.
+Before start application, you must configure the path to save the files in the environment of
+the app:
 	
-	11 {env, [{ path, "" }]},
-
-Example 
-	11 {env, [{ path, "/Users/Documents/folder" }]},
+	{env, [{ path, "" }]},
 
 Start the application with the code loaded
 	
@@ -26,10 +35,9 @@ Create a file, you need a name of the file and a list of the data to save
 Get data, you need name of the file and the name of the bucket
 
 	3> thiago:get({"name", users}).
-	[{users,0001}]
-	ok
+	{ok, [{users,0001}]}
 
-Update file, you need name of the file and the data to add
+Update file, you need name of the file and the data to append 
 
 	4> thiago:update({"name", [{users , "0002" }]}).
 	ok
@@ -41,11 +49,6 @@ Delete one row, you need the name of the file and the data of the row to delete
 
 Delete all data in the bucket, you need atom all and the name of the file 
 
-	6> thiago:delete({all, "name"}).
+	6> thiago:delete({"name", all}).
 	ok
 
-Stop application
-	
-	7> application:stop(thiago).
-
-===
